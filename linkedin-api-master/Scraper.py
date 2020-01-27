@@ -5,7 +5,7 @@ import os
 from linkedin_api import Linkedin
 import pandas as pd
 import time
-linkedin_api = Linkedin("mayurshin.vaghela43@gmail.com ","vanrajsinh2054", refresh_cookies=True, debug=True)
+linkedin_api = Linkedin("username@gmail.com","password", refresh_cookies=True, debug=True)
 
 company = linkedin_api.search_companies(keywords="Google",limit=5)
 print(company)

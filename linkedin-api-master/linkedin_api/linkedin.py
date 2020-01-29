@@ -149,20 +149,20 @@ class Linkedin(object):
         if regions:
             filters.append(f'geoRegion->{regions}')
         if industries:
-            filters.append(f'industry->{"|".join(industries)}')
+            filters.append(f'industry->{industries}')
         if current_company:
             filters.append(f'currentCompany->{current_company}')
         if past_companies:
-            filters.append(f'pastCompany->{"|".join(past_companies)}')
+            filters.append(f'pastCompany->{past_companies}')
         if profile_languages:
-            filters.append(f'profileLanguage->{"|".join(profile_languages)}')
+            filters.append(f'profileLanguage->{profile_languages}')
         if nonprofit_interests:
-            filters.append(f'nonprofitInterest->{"|".join(nonprofit_interests)}')
+            filters.append(f'nonprofitInterest->{nonprofit_interests}')
         if schools:
-            filters.append(f'schools->{"|".join(schools)}')
+            filters.append(f'schools->{schools}')
         if title:
             filters.append(f"title->{title}")
-
+        
         params = {"filters": "List({})".format(",".join(filters))}
 
         if keywords:

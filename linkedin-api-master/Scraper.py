@@ -5,17 +5,16 @@ import os
 from linkedin_api import Linkedin
 import pandas as pd
 import time
-linkedin_api = Linkedin("username@gmail.com","password", refresh_cookies=True, debug=True)
+linkedin_api = Linkedin("mayurshin.vaghela43@gmail.com","vanrajsinh2054", refresh_cookies=True, debug=True)
 
-company = linkedin_api.search_companies(keywords="Google",limit=5)
-print(company)
-results = linkedin_api.search_people(title="Software Engineer",keywords="Google", current_company="1441",regions= "in:7127",limit=15)
 
+results = linkedin_api.search_people(keywords="Vinay Shah",regions="in:7065",current_company='2758798',limit=10)
 print(len(results))
 
 search_results = pd.DataFrame()
 for result in results:
 
+        contact_info = linkedin_api.get_profile_contact_info(public_id=result['public_id'])
         profile = linkedin_api.get_profile(urn_id=result['urn_id'])
         data_firstname = profile['firstName']
         data_lastname = profile['lastName']
@@ -38,9 +37,12 @@ for result in results:
             data_edu += "["
             data_edu += education['schoolName'] + "|" if "schoolName" in education else " "   + education['degreeName'] + "|" if "degreeName" in education else " "  + str(education['timePeriod']['startDate']['year']) + "|" if "timePeriod" in education and "startDate" in education['timePeriod']  else " "   +str(education['timePeriod']['endDate']['year']) if "timePeriod" in education and "endDate" in education['timePeriod']   else " "
             data_edu += "]"
+
+        data_email = contact_info['email_address']
         data_dict = {
             "name": data_firstname + " " + data_lastname,
             "occupation": data_jobpost,
+            "email": data_email,
             "location": data_location,
             "country": data_country,
             "experience": data_exp,
@@ -70,7 +72,7 @@ if amount_results > 0:
 
     search_results.to_csv(full_file_path,
                           index=False,
-                          columns=["name", "occupation",
+                          columns=["name", "occupation", "email",
                                    "location", "country", "experience", "skills", "education", "url"])
 
 else:

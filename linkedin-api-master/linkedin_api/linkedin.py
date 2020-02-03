@@ -162,7 +162,7 @@ class Linkedin(object):
             filters.append(f'schools->{schools}')
         if title:
             filters.append(f"title->{title}")
-        
+
         params = {"filters": "List({})".format(",".join(filters))}
 
         if keywords:

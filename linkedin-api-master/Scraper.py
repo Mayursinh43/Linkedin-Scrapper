@@ -2,6 +2,9 @@ import sys
 import pytest
 import json
 import os
+
+from traitlets import link
+
 from linkedin_api import Linkedin
 import pandas as pd
 import time
@@ -51,9 +54,9 @@ for result in results:
             "url": data_url
             # "pic": data_picture  # Doesn't work
         }
-
+        
         search_results = search_results.append([data_dict])
-
+        linkedin_api.send_message(conversation_urn_id=result['urn_id'],message_body="Hello There ! This is Mayursinh2054")
 
 timestamp = str(int(time.time()))
 filename = timestamp + '.csv'

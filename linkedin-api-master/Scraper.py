@@ -8,15 +8,16 @@ from traitlets import link
 from linkedin_api import Linkedin
 import pandas as pd
 import time
-linkedin_api = Linkedin("mayurshin.vaghela43@gmail.com","vanrajsinh2054", refresh_cookies=True, debug=True)
+linkedin_api = Linkedin("mayurshin.vaghela43@gmail.com","password", refresh_cookies=True, debug=True)
 
-
-results = linkedin_api.search_people(keywords="Vinay Shah",regions="in:7065",current_company='2758798',limit=10)
+profile = linkedin_api.search_people(keywords="jonnalagadda",limit=1)
+results = linkedin_api.get_profile_connections(urn_id=profile[0]['urn_id'])
 print(len(results))
 
 search_results = pd.DataFrame()
 for result in results:
-
+        if result['urn_id'] == results[20]['urn_id']:
+            break
         contact_info = linkedin_api.get_profile_contact_info(public_id=result['public_id'])
         profile = linkedin_api.get_profile(urn_id=result['urn_id'])
         data_firstname = profile['firstName']
@@ -56,7 +57,6 @@ for result in results:
         }
         
         search_results = search_results.append([data_dict])
-        linkedin_api.send_message(conversation_urn_id=result['urn_id'],message_body="Hello There ! This is Mayursinh2054")
 
 timestamp = str(int(time.time()))
 filename = timestamp + '.csv'

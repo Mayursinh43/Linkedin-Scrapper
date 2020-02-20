@@ -10,14 +10,11 @@ import pandas as pd
 import time
 linkedin_api = Linkedin("mayurshin.vaghela43@gmail.com","password", refresh_cookies=True, debug=True)
 
-profile = linkedin_api.search_people(keywords="jonnalagadda",limit=1)
-results = linkedin_api.get_profile_connections(urn_id=profile[0]['urn_id'])
+results = linkedin_api.search_people1(network_depth='F',limit=10,start=800)
 print(len(results))
 
 search_results = pd.DataFrame()
 for result in results:
-        if result['urn_id'] == results[20]['urn_id']:
-            break
         contact_info = linkedin_api.get_profile_contact_info(public_id=result['public_id'])
         profile = linkedin_api.get_profile(urn_id=result['urn_id'])
         data_firstname = profile['firstName']
@@ -30,7 +27,13 @@ for result in results:
         data_exp = ""
         for exp in profile['experience']:
             data_exp += "["
-            data_exp += exp['locationName']  + "|" if "locationName" in exp else " "  +  exp['companyName'] + "|" if "companyName" in exp else " "   + str(exp['timePeriod']['startDate']['month']) + " " if "timePeriod" in exp and "startDate" in exp['timePeriod']  else " " +str(exp['timePeriod']['startDate']['year']) + "|" if "timePeriod" in exp and "startDate" in exp['timePeriod']  else " "  + str(exp['timePeriod']['endDate']['month']) + " " if "timePeriod" in exp and "endDate" in exp['timePeriod']  else " " + str(exp['timePeriod']['endDate']['year']) + "|" if "timePeriod" in exp and "endDate" in exp['timePeriod']  else " "  + exp['title'] if "title" in exp else " "
+            data_exp += exp['locationName']  + "|" if "locationName" in exp else " "
+            data_exp += exp['companyName'] + "|" if "companyName" in exp else " "
+            data_exp += str(exp['timePeriod']['startDate']['month']) + " " if "timePeriod" in exp and "startDate" in exp['timePeriod'] and "month" in exp['timePeriod']['startDate']  else " "
+            data_exp += str(exp['timePeriod']['startDate']['year']) + "|" if "timePeriod" in exp and "startDate" in exp['timePeriod'] and "year" in exp['timePeriod']['startDate']  else " "
+            data_exp += str(exp['timePeriod']['endDate']['month']) + " " if "timePeriod" in exp and "endDate" in exp['timePeriod'] and "month" in exp['timePeriod']['endDate'] else " "
+            data_exp += str(exp['timePeriod']['endDate']['year']) + "|" if "timePeriod" in exp and "endDate" in exp['timePeriod'] and "year" in exp['timePeriod']['endDate'] else " "
+            data_exp += exp['title'] if "title" in exp else " "
             data_exp +=  "]"
 
         data_skill = ""

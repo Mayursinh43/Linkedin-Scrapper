@@ -82,7 +82,7 @@ class Linkedin(object):
         default_params = {
             "count": str(count),
             "filters": "List()",
-            "origin": "FACETED_SEARCH",
+            "origin": "MEMBER_PROFILE_CANNED_SEARCH",
             "q": "all",
             "start": len(results),
             "queryContext": "List(spellCorrectionEnabled->true,relatedSearchesEnabled->true)",
@@ -121,6 +121,58 @@ class Linkedin(object):
         self.logger.debug(f"results grew to {len(results)}")
 
         return self.search(params, results=results, limit=limit)
+
+    def search1(self, params, limit=None, start=0,results=[]):
+        """
+        Do a search.
+        """
+        count = (
+            limit
+            if limit and limit <= Linkedin._MAX_SEARCH_COUNT
+            else Linkedin._MAX_SEARCH_COUNT
+        )
+        default_params = {
+            "count": str(count),
+            "filters": "List()",
+            "origin": "MEMBER_PROFILE_CANNED_SEARCH",
+            "q": "all",
+            "start": start,
+            "queryContext": "List(spellCorrectionEnabled->true,relatedSearchesEnabled->true)",
+        }
+
+        default_params.update(params)
+
+        res = self._fetch(
+            f"/search/blended?{urlencode(default_params, safe='(),')}",
+            headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
+        )
+
+        data = res.json()
+
+        new_elements = []
+        for i in range(len(data["data"]["elements"])):
+            new_elements.extend(data["data"]["elements"][i]["elements"])
+            # not entirely sure what extendedElements generally refers to - keyword search gives back a single job?
+            # new_elements.extend(data["data"]["elements"][i]["extendedElements"])
+
+        results.extend(new_elements)
+        results = results[
+            :limit
+        ]  # always trim results, no matter what the request returns
+
+        # recursive base case
+        if (
+            limit is not None
+            and (
+                len(results) >= limit  # if our results exceed set limit
+                or len(results) / count >= Linkedin._MAX_REPEATED_REQUESTS
+            )
+        ) or len(new_elements) == 0:
+            return results
+
+        self.logger.debug(f"results grew to {len(results)}")
+
+        return self.search1(params, results=results, limit=limit,start=start+49)
 
     def search_people(
         self,
@@ -183,6 +235,71 @@ class Linkedin(object):
             )
 
         return results
+
+    def search_people1(
+        self,
+        keywords=None,
+        connection_of=None,
+        network_depth=None,
+        current_company=None,
+        past_companies=None,
+        nonprofit_interests=None,
+        profile_languages=None,
+        regions=None,
+        industries=None,
+        schools=None,
+        title=None,
+        start=None,
+        include_private_profiles=False,  # profiles without a public id, "Linkedin Member"
+        limit=None,
+
+    ):
+        """
+        Do a people search.
+        """
+        filters = ["resultType->PEOPLE"]
+        if connection_of:
+            filters.append(f"connectionOf->{connection_of}")
+        if network_depth:
+            filters.append(f"network->{network_depth}")
+        if regions:
+            filters.append(f'geoRegion->{regions}')
+        if industries:
+            filters.append(f'industry->{industries}')
+        if current_company:
+            filters.append(f'currentCompany->{current_company}')
+        if past_companies:
+            filters.append(f'pastCompany->{past_companies}')
+        if profile_languages:
+            filters.append(f'profileLanguage->{profile_languages}')
+        if nonprofit_interests:
+            filters.append(f'nonprofitInterest->{nonprofit_interests}')
+        if schools:
+            filters.append(f'schools->{schools}')
+        if title:
+            filters.append(f"title->{title}")
+
+        params = {"filters": "List({})".format(",".join(filters))}
+
+        if keywords:
+            params["keywords"] = keywords
+
+        data = self.search1(params, limit=limit,start=start)
+
+        results = []
+        for item in data:
+            if "publicIdentifier" not in item:
+                continue
+            results.append(
+                {
+                    "urn_id": get_id_from_urn(item.get("targetUrn")),
+                    "distance": item.get("memberDistance", {}).get("value"),
+                    "public_id": item.get("publicIdentifier"),
+                }
+            )
+
+        return results
+
 
     def search_companies(self, keywords=None, limit=None):
         """

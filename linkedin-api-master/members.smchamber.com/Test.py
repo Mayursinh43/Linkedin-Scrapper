@@ -1,0 +1,8 @@
+import requests
+import json
+json_data = {"pageMode": "Live_Site", "chapterId": 'UVyZ4fgN+8YF7O1jFK/lNA==', "languageLocaleCode":"en_US", "mappedWidgetSettings" : '[{"key":83,"name":"Chapter Website","value":"Chapter Website"},{"key":84,"name":"View Chapter Gallery","value":"View Chapter Gallery"},{"key":85,"name":"Visit This Chapter","value":"Visit This Chapter"},{"key":86,"name":"Member Names","value":"Member Name"},{"key":87,"name":"Company","value":"Company"},{"key":88,"name":"Profession/Speciality","value":"Profession/Speciality"},{"key":89,"name":"Phone","value":"Phone"},{"key":90,"name":"Send Mail","value":"Send Mail"},{"key":91,"name":"Showing","value":"Showing"},{"key":92,"name":"to","value":"to"},{"key":93,"name":"of","value":"of"},{"key":94,"name":"entries","value":"entries"},{"key":95,"name":"Meeting Details","value":"Meeting Details"},{"key":96,"name":"View Map","value":"View Map"},{"key":97,"name":"Member Count","value":"Member Count"},{"key":98,"name":"Show Members","value":"Show Members"},{"key":99,"name":"Chapter Leadership","value":"Chapter Leadership"},{"key":233,"name":"Directions","value":"Directions"},{"key":307,"name":"Zero Records","value":"Zero Records"},{"key":390,"name":"Apply Now","value":"Apply Now"}]'}
+
+acccess_token = requests.get("https://api.meetup.com/sessions?&email=mayursinh5555@gmail.com&password=V@nrajsinh2054")
+
+r = requests.get("https://www.meetup.com/mu_api/urlname/members?queries=(endpoint:find/upcoming_events,meta:(method:get),params:(browser_id:baef10df-9cd1-40db-82d5-ddc12bb99261,excluded_groups:12114102,fields:'rsvp_sample,self,event_hosts',lat:34.07,lon:-118.35,order:best,page:3,self_groups:exclude,topic_category:292),ref:relatedEvents)")
+print (r.json())

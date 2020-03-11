@@ -82,10 +82,9 @@ class Linkedin(object):
         default_params = {
             "count": str(count),
             "filters": "List()",
-            "origin": "MEMBER_PROFILE_CANNED_SEARCH",
+            "origin": "FACETED_SEARCH",
             "q": "all",
-            "start": len(results),
-            "queryContext": "List(spellCorrectionEnabled->true,relatedSearchesEnabled->true)",
+            "start": 0,
         }
 
         default_params.update(params)
@@ -102,7 +101,6 @@ class Linkedin(object):
             new_elements.extend(data["data"]["elements"][i]["elements"])
             # not entirely sure what extendedElements generally refers to - keyword search gives back a single job?
             # new_elements.extend(data["data"]["elements"][i]["extendedElements"])
-
         results.extend(new_elements)
         results = results[
             :limit
@@ -112,7 +110,7 @@ class Linkedin(object):
         if (
             limit is not None
             and (
-                len(results) >= limit  # if our results exceed set limit
+                len(results) <= limit  # if our results exceed set limit
                 or len(results) / count >= Linkedin._MAX_REPEATED_REQUESTS
             )
         ) or len(new_elements) == 0:
@@ -187,6 +185,8 @@ class Linkedin(object):
         industries=None,
         schools=None,
         title=None,
+        firstname=None,
+        lastname=None,
         include_private_profiles=False,  # profiles without a public id, "Linkedin Member"
         limit=None,
     ):
@@ -214,13 +214,17 @@ class Linkedin(object):
             filters.append(f'schools->{schools}')
         if title:
             filters.append(f"title->{title}")
+        if firstname:
+            filters.append(f"firstName->{firstname}")
+        if lastname:
+            filters.append(f"lastName->{lastname}")
 
         params = {"filters": "List({})".format(",".join(filters))}
 
         if keywords:
             params["keywords"] = keywords
 
-        data = self.search(params, limit=limit)
+        data = self.search(params, limit=limit, results=[])
 
         results = []
         for item in data:

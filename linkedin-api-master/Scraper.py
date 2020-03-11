@@ -1,16 +1,14 @@
 import sys
-import pytest
 import json
-import os
-
 from traitlets import link
-
+import os
 from linkedin_api import Linkedin
 import pandas as pd
 import time
 linkedin_api = Linkedin("mayurshin.vaghela43@gmail.com","password", refresh_cookies=True, debug=True)
-
-results = linkedin_api.search_people1(network_depth='F',limit=10,start=800)
+comapany = linkedin_api.get_company(public_id="google")
+comapanyid = int(comapany['url'].split('/')[len(comapany['url'].split('/')) - 1])
+results = linkedin_api.search_people1(start=0,limit=10,current_company=comapanyid,regions="us:49",keywords="Software Engineer")
 print(len(results))
 
 search_results = pd.DataFrame()
